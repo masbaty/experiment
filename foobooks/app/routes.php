@@ -18,8 +18,16 @@ Route::get('/', function()
 	return View::make("index");
 });
 
-Route::get('/list/{query?}', function($query) {
-	return View::make("list");
+Route::get('/list/{format?}', function($format = 'html') {
+	if ($format == 'html') {
+		return 'HTML Version';
+	}
+	elseif (strtolower($format) == 'json') {
+		return 'JSON Version';
+	}
+	else {
+		return View::make('list');
+	}
 });
 
 // Display the form for a new book
