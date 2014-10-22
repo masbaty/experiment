@@ -19,16 +19,39 @@ Route::get('/', function()
 });
 
 Route::get('/list/{format?}', function($format = 'html') {
-	if ($format == 'html') {
-		return 'HTML Version';
+	
+	// $query = $_GET['query'];		// Old school way
+	$query = Input::get('query');	// With Laravel
+
+
+	$library = new Library();
+	$library->setPath(app_path().'/database/books.json');
+	$books = $library->getBooks();
+	//echo Pre::render($books);
+
+	if($query) {
+		$books = $library->search($query);
+	}
+
+
+	if ($format == 'pdf') {
+		return 'PDF Version';
 	}
 	elseif (strtolower($format) == 'json') {
 		return 'JSON Version';
 	}
 	else {
-		return View::make('list');
+		return View::make('list')
+			->with('name', 'Matthew')
+			->with('books', $books)
+			->with('query', $query);
 	}
 });
+
+
+
+
+
 
 // Display the form for a new book
 Route::get('/add', function() {
@@ -51,6 +74,7 @@ Route::post('/edit/', function() {
 });
 
 
+// Load and output books
 Route::get('/data', function() {
 	
 	//echo app_path()."<br>";
@@ -58,10 +82,15 @@ Route::get('/data', function() {
 	//echo base_path()."<br>";
 	//echo storage_path()."<br>";
 
-	$books = File::get(app_path().'/database/books.json');
+	//$books = File::get(app_path().'/database/books.json');
+	//$books = json_decode($books,true); // Transforms it into array
 
-	$books = json_decode($books,true); // Transforms it into array
 	//$first_book = array_pop($books);
+
+	$library = new Library();
+
+	$library->setPath(app_path().'/database/books.json');
+	$books = $library->getBooks();
 
 	//return $books;
 	echo Pre::render($books);
